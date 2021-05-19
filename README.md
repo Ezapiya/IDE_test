@@ -1,9 +1,15 @@
 # IDE_test
 C# appliction  to get veriable and function from c source code
 
+
+
+
+
 Sample code 
 
- Cls_c_process cpro = new Cls_c_process();
+
+
+            Cls_c_process cpro = new Cls_c_process();
             cpro.code = rt1.Text;
             String[] token= cpro.Parse();
             rttoken.Text = "";
