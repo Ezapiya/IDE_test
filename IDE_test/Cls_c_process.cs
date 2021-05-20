@@ -9,10 +9,13 @@ namespace IDE_test
     class Cls_c_process
     {
         public String code = "";
+        int Current_char = 0;
+        int Current_line = -1;
         List<String> tokens_list = new List<string>();
         List<String> veriable_list = new List<string>();
         List<String> function_list = new List<string>();
-       
+        Regex r = new Regex("\\n");
+        String[] lines;
         private string removeComments(string prgm)
         {
             int n = prgm.Length;
@@ -41,9 +44,9 @@ namespace IDE_test
 
                 // Check for beginning of comments and set the approproate flags
                 else if (prgm[i] == '/' && prgm[i + 1] == '/')
-                { s_cmt = true; i++; }
+                { s_cmt = true; i++; res += '\n'; }
                 else if (prgm[i] == '/' && prgm[i + 1] == '*')
-                { m_cmt = true; i++; }
+                { m_cmt = true; i++; res += '\n'; }
 
                 // If current character is a non-comment character, append it to res
                 else res += prgm[i];
@@ -53,14 +56,14 @@ namespace IDE_test
         public String[]  Parse()
         {
             String inputLanguage = removeComments(code);
-            Regex r = new Regex("\\n");
-            String[] lines = r.Split(inputLanguage);
+            lines = r.Split(inputLanguage);
             tokens_list.Clear();
             veriable_list.Clear();
             function_list.Clear();
           
             foreach (string l in lines)
             {
+                Current_line++;
                 String li = l.Trim();
                 if (li.StartsWith("#include"))
                     continue;
@@ -78,6 +81,8 @@ namespace IDE_test
                     continue;
 
                 ParseLine(l);
+                Current_char = Current_char + l.Length;
+               
             }
             var DistinctItems = tokens_list.Distinct();
            // String[] abc = DistinctItems.ToArray();
@@ -93,7 +98,51 @@ namespace IDE_test
             var DistinctItems = veriable_list.Distinct();
             return DistinctItems.ToArray();
         }
-      
+        public String check_function(String line,String function_name,int index)
+        {
+            String result = "Prototype";
+
+            int fs = line.IndexOf(function_name);
+            int i=fs-1;
+            while ((line[i] == ' ' || line[i] == '\t') && i>0)
+            {
+                i--;
+            }
+            int j = i;
+            while ((line[j] != ' ' || line[j] != '\t' || line[j] != '\n' || line[j] != ';') && j>0)
+            {
+                j--;
+            }
+            String return_type="";
+            if(i>j)
+                return_type = line.Substring(j, i + 1);
+
+            while (line[fs] != ')' && fs < line.Length)
+            {
+                fs++;
+            }
+            if (fs < line.Length - 1 && line[fs + 1] == ';')
+                result = "Prototype";
+            else
+            {
+                
+                String nl = line + "\n" + lines[Current_line + 1];
+                while (nl[fs] == ' ' || nl[fs] == '\t' || nl[fs] == '\n')
+                {
+                    fs++;
+                }
+                if (nl[fs] == '{')
+                {
+                    result = "Declaration";
+                }
+                else {
+                    result = "Calling";
+                }
+            }
+
+            return result;
+        }
+
         void ParseLine(string line)
         {
             Regex r = new Regex("([ \\t{>=<,[}();])");
@@ -173,6 +222,8 @@ namespace IDE_test
                                     if (line[index] == '(')
                                     {
                                         function_list.Add(tokenx);
+
+                                        check_function(line, tokenx, index);
                                        
                                     }
                                     else

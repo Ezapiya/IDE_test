@@ -34,7 +34,6 @@
             this.rtveriable_list = new System.Windows.Forms.RichTextBox();
             this.rtfunction_list = new System.Windows.Forms.RichTextBox();
             this.rttoken = new System.Windows.Forms.RichTextBox();
-            this.rtfunction_veriable_list = new System.Windows.Forms.RichTextBox();
             this.SuspendLayout();
             // 
             // rt1
@@ -59,18 +58,18 @@
             // rtveriable_list
             // 
             this.rtveriable_list.Font = new System.Drawing.Font("Microsoft Sans Serif", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.rtveriable_list.Location = new System.Drawing.Point(582, 194);
+            this.rtveriable_list.Location = new System.Drawing.Point(583, 244);
             this.rtveriable_list.Name = "rtveriable_list";
-            this.rtveriable_list.Size = new System.Drawing.Size(333, 177);
+            this.rtveriable_list.Size = new System.Drawing.Size(333, 215);
             this.rtveriable_list.TabIndex = 3;
             this.rtveriable_list.Text = "";
             // 
             // rtfunction_list
             // 
             this.rtfunction_list.Font = new System.Drawing.Font("Microsoft Sans Serif", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.rtfunction_list.Location = new System.Drawing.Point(582, 376);
+            this.rtfunction_list.Location = new System.Drawing.Point(583, 469);
             this.rtfunction_list.Name = "rtfunction_list";
-            this.rtfunction_list.Size = new System.Drawing.Size(333, 177);
+            this.rtfunction_list.Size = new System.Drawing.Size(333, 215);
             this.rtfunction_list.TabIndex = 4;
             this.rtfunction_list.Text = "";
             // 
@@ -79,25 +78,15 @@
             this.rttoken.Font = new System.Drawing.Font("Microsoft Sans Serif", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.rttoken.Location = new System.Drawing.Point(582, 12);
             this.rttoken.Name = "rttoken";
-            this.rttoken.Size = new System.Drawing.Size(333, 177);
+            this.rttoken.Size = new System.Drawing.Size(333, 215);
             this.rttoken.TabIndex = 5;
             this.rttoken.Text = "";
-            // 
-            // rtfunction_veriable_list
-            // 
-            this.rtfunction_veriable_list.Font = new System.Drawing.Font("Microsoft Sans Serif", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.rtfunction_veriable_list.Location = new System.Drawing.Point(582, 559);
-            this.rtfunction_veriable_list.Name = "rtfunction_veriable_list";
-            this.rtfunction_veriable_list.Size = new System.Drawing.Size(333, 177);
-            this.rtfunction_veriable_list.TabIndex = 6;
-            this.rtfunction_veriable_list.Text = "";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(928, 772);
-            this.Controls.Add(this.rtfunction_veriable_list);
             this.Controls.Add(this.rttoken);
             this.Controls.Add(this.rtfunction_list);
             this.Controls.Add(this.rtveriable_list);
@@ -117,7 +106,6 @@
         private System.Windows.Forms.RichTextBox rtveriable_list;
         private System.Windows.Forms.RichTextBox rtfunction_list;
         private System.Windows.Forms.RichTextBox rttoken;
-        private System.Windows.Forms.RichTextBox rtfunction_veriable_list;
     }
 }
 
