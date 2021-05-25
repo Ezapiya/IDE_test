@@ -11,11 +11,15 @@ namespace IDE_test
         public String code = "";
         int Current_char = 0;
         int Current_line = -1;
+        int Current_token = 0;
         List<String> tokens_list = new List<string>();
         List<String> veriable_list = new List<string>();
         List<String> function_list = new List<string>();
+        List<function_> function_list_1 = new List<function_>();
+
         Regex r = new Regex("\\n");
         String[] lines;
+        String[] tokens;
         private string removeComments(string prgm)
         {
             int n = prgm.Length;
@@ -55,6 +59,7 @@ namespace IDE_test
         }
         public String[]  Parse()
         {
+            Cls_c_process temp_process = new Cls_c_process();
             String inputLanguage = removeComments(code);
             lines = r.Split(inputLanguage);
             tokens_list.Clear();
@@ -64,7 +69,7 @@ namespace IDE_test
             foreach (string l in lines)
             {
                 Current_line++;
-                String li = l.Trim();
+                /*String li = l.Trim();
                 if (li.StartsWith("#include"))
                     continue;
                 if (li.StartsWith("#define"))
@@ -78,12 +83,13 @@ namespace IDE_test
                 if (li.Contains("cin<<"))
                     continue;
                 if (li.Contains("printf"))
-                    continue;
+                    continue;*/
 
                 ParseLine(l);
                 Current_char = Current_char + l.Length;
                
             }
+            var xxx = function_list_1.ToArray();
             var DistinctItems = tokens_list.Distinct();
            // String[] abc = DistinctItems.ToArray();
             return DistinctItems.ToArray();
@@ -100,57 +106,153 @@ namespace IDE_test
         }
         public String check_function(String line,String function_name,int index)
         {
-            String result = "Prototype";
-
-            int fs = line.IndexOf(function_name);
-            int i=fs-1;
-            while ((line[i] == ' ' || line[i] == '\t') && i>0)
-            {
-                i--;
-            }
-            int j = i;
-            while ((line[j] != ' ' || line[j] != '\t' || line[j] != '\n' || line[j] != ';') && j>0)
-            {
-                j--;
-            }
-            String return_type="";
-            if(i>j)
-                return_type = line.Substring(j, i + 1);
-
-            while (line[fs] != ')' && fs < line.Length)
-            {
-                fs++;
-            }
-            if (fs < line.Length - 1 && line[fs + 1] == ';')
-                result = "Prototype";
-            else
-            {
-                
-                String nl = line + "\n" + lines[Current_line + 1];
-                while (nl[fs] == ' ' || nl[fs] == '\t' || nl[fs] == '\n')
+            String result = "Calling";
+            String p_token, n_token;
+            String function_body = "";
+            int starting_line = 0;
+            int ending_line = 0;
+            int bo = 0, bc = 0;
+            try {
+                p_token = tokens[Current_token - 1];
+                n_token = tokens[Current_token + 1];
+                int i = Current_token + 1;
+                for (; i < tokens.Count(); i++)
                 {
-                    fs++;
+                    if (tokens[i].CompareTo(")") == 0)
+                        break;
                 }
-                if (nl[fs] == '{')
+                if ((i == tokens.Count() - 1) || tokens[i+1].CompareTo("{") == 0)
                 {
-                    result = "Declaration";
+                    
+                    result = "Create";
+                    function_body = "";
+                    bo = 0; bc = -1;
+                   
+                    int x = i;
+                    int x1=0;
+
+                    while (bo != bc)
+                    {
+
+                        Regex r1 = new Regex("([ \\t{>=<,[}();])");
+                        String[] ftokens = r1.Split(lines[Current_line + x1]);
+                        String[] kk = new String[3];
+                        kk[0] = " ";
+                        kk[1] = "";
+                        ftokens = ftokens.Except(kk).ToArray();
+                        for (int k = x; k < ftokens.Count(); k++)
+                        {
+                            if (ftokens[k].CompareTo("{") == 0)
+                            {
+                                bo++;
+                            }
+                            if (ftokens[k].CompareTo("}") == 0)
+                            {
+                                if (bc == -1)
+                                    bc = 0;
+                                bc++;
+                            }
+                            if (bo == bc && bo!=0)
+                                break;
+                        }
+                        function_body = function_body + "\n" + lines[Current_line + x1];
+                        x1++; x = 0; starting_line = Current_line; ending_line = Current_line + x1;
+                    } 
+
+
                 }
-                else {
-                    result = "Calling";
+                else
+                {
+                    if (tokens[i + 1].CompareTo(";") == 0)
+                    {
+                        String[] datatypes = {"int", "char", "float", "double","void","short" };
+                            // prototype or calling
+                        if (datatypes.Contains(p_token) == true || veriable_list.ToArray().Contains(p_token) == true)
+                        {
+                            // prototype 
+                            result = "Prototype";
+                        }
+                        else
+                        { 
+                            //calling 
+                            result = "Calling";
+                        }
+                    }
+                }
+                int j = 0;
+                for (; j < function_list_1.Count; j++)
+                {
+                    if (function_list_1[j].function_name.CompareTo(function_name) == 0)
+                        break;
+                }
+                if (j == function_list_1.Count)
+                {
+                    function_ f = new function_();
+                    f.function_name = function_name;
+                    if (result.CompareTo("Prototype") == 0)
+                    {
+                        f.function_prototype = line;
+                    }
+                    if (result.CompareTo("Create") == 0)
+                    {
+                        f.function_declaration = line;
+                        f.function_body = function_body;
+                        f.Strging_line = starting_line;
+                        f.Ending_line = ending_line;
+
+                    }
+                    function_list_1.Add(f);
+                }
+                else
+                {
+                    if (result.CompareTo("Prototype") == 0)
+                    {
+                        function_list_1[j].function_prototype = line;
+                    }
+                    if (result.CompareTo("Create") == 0)
+                    {
+                        function_list_1[j].function_declaration = line;
+                        function_list_1[j].function_body = function_body;
+                        function_list_1[j].Strging_line = starting_line;
+                        function_list_1[j].Ending_line = ending_line;
+                    }
+
                 }
             }
-
+            catch { }
+            
             return result;
         }
 
         void ParseLine(string line)
         {
-            Regex r = new Regex("([ \\t{>=<,[}();])");
-            //Regex r = new Regex("([ \\t{=,[}();])");
-            String[] tokens = r.Split(line);
+            line = line.Trim();
+            if (line.StartsWith("#include"))
+                goto xyz;
+            if (line.StartsWith("#define"))
+                goto xyz;
+            if (line.Contains("printf"))
+                goto xyz;
+            if (line.Contains("scanf"))
+                goto xyz;
+            if (line.Contains("cout<<"))
+                goto xyz;
+            if (line.Contains("cin<<"))
+                goto xyz;
+            if (line.Contains("printf"))
+                goto xyz;
 
+            Regex r1 = new Regex("([ \\t{>=<,[}();])");
+            tokens = r1.Split(line);
+            
+            String[] kk = new String[3];
+            kk[0] = " ";
+            kk[1] = "";
+            tokens = tokens.Except(kk).ToArray();
+            Current_token = -1;
             foreach (string token in tokens)
             {
+                Current_token++;
                 String tokenx = token.Trim();
 
                 // Check for a comment.
@@ -246,8 +348,10 @@ namespace IDE_test
                 }
             abc: ;
             }
-
+        xyz: ;
 
         }
+
+        /////////
     }
 }
