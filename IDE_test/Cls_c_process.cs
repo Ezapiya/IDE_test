@@ -12,9 +12,12 @@ namespace IDE_test
         int Current_char = 0;
         int Current_line = -1;
         int Current_token = 0;
+        int Current_function_end_at = 0;
+        String Current_function_name = "Globle";
         List<String> tokens_list = new List<string>();
         List<String> veriable_list = new List<string>();
         List<String> function_list = new List<string>();
+        List<String> Globle_variable_list = new List<string>();
         List<function_> function_list_1 = new List<function_>();
 
         Regex r = new Regex("\\n");
@@ -25,18 +28,22 @@ namespace IDE_test
             int n = prgm.Length;
             string res = "";
 
-            // Flags to indicate that single line and multiple line comments
-            // have started or not.
             bool s_cmt = false;
             bool m_cmt = false;
 
-
-            // Traverse the given program
             for (int i = 0; i < n; i++)
             {
                 // If single line comment flag is on, then check for end of it
                 if (s_cmt == true && prgm[i] == '\n')
+                {
                     s_cmt = false;
+                   // res += '\n';
+                    
+                }
+                if (m_cmt == true && prgm[i] == '\n')
+                {
+                    res += '\n';
+                }
 
                 // If multiple line comment is on, then check for end of it
                 else if (m_cmt == true && prgm[i] == '*' && prgm[i + 1] == '/')
@@ -48,9 +55,9 @@ namespace IDE_test
 
                 // Check for beginning of comments and set the approproate flags
                 else if (prgm[i] == '/' && prgm[i + 1] == '/')
-                { s_cmt = true; i++; res += '\n'; }
+                { s_cmt = true; i++;  }
                 else if (prgm[i] == '/' && prgm[i + 1] == '*')
-                { m_cmt = true; i++; res += '\n'; }
+                { m_cmt = true; i++;  }
 
                 // If current character is a non-comment character, append it to res
                 else res += prgm[i];
@@ -65,6 +72,9 @@ namespace IDE_test
             tokens_list.Clear();
             veriable_list.Clear();
             function_list.Clear();
+            function_list_1.Clear();
+            Globle_variable_list.Clear();
+           
           
             foreach (string l in lines)
             {
@@ -94,21 +104,56 @@ namespace IDE_test
            // String[] abc = DistinctItems.ToArray();
             return DistinctItems.ToArray();
         }
+        public String[] get_Globle_variable() {
+            var DistinctItems = Globle_variable_list.Distinct();
+            return DistinctItems.ToArray();
+        }
+        public String[] get_variable_of(String Function_name)
+        {
+            String[] rte=null;
+            for (int i = 0; i < function_list_1.Count; i++)
+            {
+                if (function_list_1[i].function_name.CompareTo(Function_name) == 0)
+                {
+                    rte = function_list_1[i].variables.Distinct().ToArray();
+                }
+            }
+            return rte;
+        }
         public String[] get_function()
         {
-            var DistinctItems = function_list.Distinct();
-            return DistinctItems.ToArray();
+            String[] ret= new String [function_list_1.Count()];
+            for (int i = 0; i < function_list_1.Count; i++)
+            {
+                ret[i] = function_list_1[i].function_name;
+            }
+            return ret;
         }
         public String[] get_veriable()
         {
             var DistinctItems = veriable_list.Distinct();
             return DistinctItems.ToArray();
         }
+        public string get_current_function(int line_no)
+        {
+            String funcion_name = "Globle";
+            for (int i = 0; i < function_list_1.Count; i++)
+            {
+                if (line_no >= function_list_1[i].Strging_line && line_no <= function_list_1[i].Ending_line)
+                {
+                    funcion_name = function_list_1[i].function_name;
+                }
+            }
+
+            return funcion_name;
+        }
         public String check_function(String line,String function_name,int index)
         {
+
             String result = "Calling";
             String p_token, n_token;
             String function_body = "";
+            Current_function_name = function_name;
             int starting_line = 0;
             int ending_line = 0;
             int bo = 0, bc = 0;
@@ -220,7 +265,7 @@ namespace IDE_test
                 }
             }
             catch { }
-            
+            Current_function_end_at = ending_line;
             return result;
         }
 
@@ -244,6 +289,12 @@ namespace IDE_test
 
             Regex r1 = new Regex("([ \\t{>=<,[}();])");
             tokens = r1.Split(line);
+
+            if (Current_line > Current_function_end_at)
+            {
+                Current_function_end_at = 0;
+                Current_function_name = "Globle";
+            }
             
             String[] kk = new String[3];
             kk[0] = " ";
@@ -285,7 +336,7 @@ namespace IDE_test
                     tokenx = temp[0];
                 }
                 // Check whether the token is a keyword. 
-                String[] keywords = { "NULL","main", "public", "void", "using", "static", "class", "auto", "double", "int", "struct", "break", "else", "long", "switch", "case", "enum", "register", "typedef", "char", "extern", "return", "union", "continue", "for", "signed", "void", "do", "if", "static", "while", "default", "goto", "sizeof", "volatile", "const", "float", "short", "unsigned" };
+                String[] keywords = { "NULL", "public", "void", "using", "static", "class", "auto", "double", "int", "struct", "break", "else", "long", "switch", "case", "enum", "register", "typedef", "char", "extern", "return", "union", "continue", "for", "signed", "void", "do", "if", "static", "while", "default", "goto", "sizeof", "volatile", "const", "float", "short", "unsigned" };
                 for (int i = 0; i < keywords.Length; i++)
                 {
                     if (keywords[i] == tokenx)
@@ -331,6 +382,19 @@ namespace IDE_test
                                     else
                                     {
                                         veriable_list.Add(tokenx);
+                                        if (Current_function_name.CompareTo("Globle") == 0)
+                                        {
+                                            Globle_variable_list.Add(tokenx);
+                                        }
+                                        else {
+                                            for (int k = 0; k < function_list_1.Count; k++)
+                                            {
+                                                if (function_list_1[k].function_name.CompareTo(Current_function_name) == 0)
+                                                {
+                                                    function_list_1[k].variables.Add(tokenx);
+                                                }
+                                            }
+                                        }
                                         
                                     }
                                 }

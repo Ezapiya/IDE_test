@@ -15,6 +15,7 @@ namespace IDE_test
        public String function_body { get; set; }
        public int Strging_line { get; set; }
        public int Ending_line { get; set; }
+       public List<String> variables = new List<string>();
 
     }
 }

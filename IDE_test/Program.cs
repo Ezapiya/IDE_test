@@ -16,7 +16,8 @@ namespace IDE_test
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+            //Application.Run(new Form1());
+            Application.Run(new frm_cpp());
         }
     }
 }
